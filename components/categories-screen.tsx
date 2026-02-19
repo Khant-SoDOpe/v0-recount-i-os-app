@@ -36,7 +36,7 @@ export function CategoriesScreen({ items, onItemClick }: CategoriesScreenProps) 
     const catInfo = CATEGORIES.find((c) => c.id === openCategory)
 
     return (
-      <div className="px-5 pt-14 pb-28">
+      <div className="px-5 pt-14 pb-28 lg:px-10 lg:pt-10 lg:pb-10">
         <button
           onClick={() => setOpenCategory(null)}
           className="flex items-center gap-1 text-sm text-primary font-medium mb-5"
@@ -44,10 +44,10 @@ export function CategoriesScreen({ items, onItemClick }: CategoriesScreenProps) 
           <ChevronRight className="w-4 h-4 rotate-180" />
           Back to categories
         </button>
-        <h1 className="text-2xl font-bold text-foreground mb-1 tracking-tight">
+        <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-1 tracking-tight">
           {catInfo?.label}
         </h1>
-        <p className="text-sm text-muted-foreground mb-5">
+        <p className="text-sm text-muted-foreground mb-5 lg:mb-7">
           {categoryItems.length} {categoryItems.length === 1 ? "item" : "items"}
         </p>
         {categoryItems.length === 0 ? (
@@ -58,12 +58,12 @@ export function CategoriesScreen({ items, onItemClick }: CategoriesScreenProps) 
             <p className="text-sm text-muted-foreground">No items yet in this category</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4">
             {categoryItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => onItemClick(item)}
-                className="bg-card rounded-2xl overflow-hidden shadow-sm border border-border active:scale-[0.97] transition-transform"
+                className="bg-card rounded-2xl overflow-hidden shadow-sm border border-border active:scale-[0.97] lg:hover:shadow-md transition-all"
               >
                 <div className="relative aspect-square">
                   <Image
@@ -80,7 +80,7 @@ export function CategoriesScreen({ items, onItemClick }: CategoriesScreenProps) 
                 </div>
                 <div className="p-3">
                   <p className="text-sm font-semibold text-foreground truncate">{item.name}</p>
-                  <p className="text-[10px] text-muted-foreground">{item.boughtFrom}</p>
+                  <p className="text-[10px] lg:text-xs text-muted-foreground">{item.boughtFrom}</p>
                 </div>
               </button>
             ))}
@@ -91,15 +91,15 @@ export function CategoriesScreen({ items, onItemClick }: CategoriesScreenProps) 
   }
 
   return (
-    <div className="px-5 pt-14 pb-28">
-      <h1 className="text-2xl font-bold text-foreground tracking-tight mb-1">
+    <div className="px-5 pt-14 pb-28 lg:px-10 lg:pt-10 lg:pb-10">
+      <h1 className="text-2xl lg:text-3xl font-bold text-foreground tracking-tight mb-1">
         Wardrobe
       </h1>
-      <p className="text-sm text-muted-foreground mb-6">
+      <p className="text-sm lg:text-base text-muted-foreground mb-6 lg:mb-8">
         Browse your clothing by category
       </p>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         {CATEGORIES.map((category) => {
           const count = getCategoryItems(category.id).length
           const previewItems = getCategoryItems(category.id).slice(0, 2)
@@ -108,12 +108,12 @@ export function CategoriesScreen({ items, onItemClick }: CategoriesScreenProps) 
             <button
               key={category.id}
               onClick={() => setOpenCategory(category.id)}
-              className="bg-card rounded-2xl p-4 shadow-sm border border-border text-left active:scale-[0.97] transition-transform"
+              className="bg-card rounded-2xl p-4 lg:p-5 shadow-sm border border-border text-left active:scale-[0.97] lg:hover:shadow-md transition-all"
             >
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 ${categoryColors[category.id]}`}>
                 {categoryIcons[category.id]}
               </div>
-              <h3 className="text-base font-semibold text-foreground mb-0.5">
+              <h3 className="text-base lg:text-lg font-semibold text-foreground mb-0.5">
                 {category.label}
               </h3>
               <p className="text-xs text-muted-foreground mb-3">
@@ -149,16 +149,16 @@ export function CategoriesScreen({ items, onItemClick }: CategoriesScreenProps) 
       </div>
 
       {/* All Items */}
-      <div className="mt-7">
-        <h2 className="text-base font-semibold text-foreground mb-3">All Items</h2>
-        <div className="space-y-2.5">
+      <div className="mt-7 lg:mt-10">
+        <h2 className="text-base lg:text-lg font-semibold text-foreground mb-3 lg:mb-4">All Items</h2>
+        <div className="space-y-2.5 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0">
           {items.map((item) => (
             <button
               key={item.id}
               onClick={() => onItemClick(item)}
-              className="w-full flex items-center gap-3 bg-card rounded-2xl p-3 shadow-sm border border-border active:scale-[0.98] transition-transform"
+              className="w-full flex items-center gap-3 bg-card rounded-2xl p-3 lg:p-4 shadow-sm border border-border active:scale-[0.98] lg:hover:shadow-md transition-all"
             >
-              <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-secondary flex-shrink-0">
+              <div className="relative w-12 h-12 lg:w-14 lg:h-14 rounded-xl overflow-hidden bg-secondary flex-shrink-0">
                 <Image
                   src={item.image}
                   alt={item.name}
@@ -167,8 +167,8 @@ export function CategoriesScreen({ items, onItemClick }: CategoriesScreenProps) 
                 />
               </div>
               <div className="flex-1 text-left min-w-0">
-                <p className="text-sm font-semibold text-foreground truncate">{item.name}</p>
-                <p className="text-[10px] text-muted-foreground capitalize">
+                <p className="text-sm lg:text-base font-semibold text-foreground truncate">{item.name}</p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground capitalize">
                   {CATEGORIES.find((c) => c.id === item.category)?.label}
                 </p>
               </div>

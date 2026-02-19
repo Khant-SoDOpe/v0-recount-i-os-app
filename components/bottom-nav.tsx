@@ -19,7 +19,7 @@ const navItems = [
 export function BottomNav({ activeTab, onTabChange, onAddClick }: BottomNavProps) {
   return (
     <nav
-      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-card/80 backdrop-blur-xl border-t border-border"
+      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-card/80 backdrop-blur-xl border-t border-border lg:hidden"
       role="navigation"
       aria-label="Main navigation"
     >
