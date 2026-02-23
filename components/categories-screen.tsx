@@ -1,6 +1,6 @@
 "use client"
 
-import Image from "next/image"
+import { ClothingImage } from "@/components/clothing-image"
 import { ChevronRight, Shirt, Wind, Footprints, Layers } from "lucide-react"
 import type { ClothingItem, Category } from "@/lib/data"
 import { CATEGORIES } from "@/lib/data"
@@ -66,7 +66,7 @@ export function CategoriesScreen({ items, onItemClick }: CategoriesScreenProps) 
                 className="bg-card rounded-2xl overflow-hidden shadow-sm border border-border active:scale-[0.97] lg:hover:shadow-md transition-all"
               >
                 <div className="relative aspect-square">
-                  <Image
+                  <ClothingImage
                     src={item.image}
                     alt={item.name}
                     fill
@@ -126,7 +126,7 @@ export function CategoriesScreen({ items, onItemClick }: CategoriesScreenProps) 
                       key={item.id}
                       className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-card"
                     >
-                      <Image
+                      <ClothingImage
                         src={item.image}
                         alt={item.name}
                         fill
@@ -159,7 +159,7 @@ export function CategoriesScreen({ items, onItemClick }: CategoriesScreenProps) 
               className="w-full flex items-center gap-3 bg-card rounded-2xl p-3 lg:p-4 shadow-sm border border-border active:scale-[0.98] lg:hover:shadow-md transition-all"
             >
               <div className="relative w-12 h-12 lg:w-14 lg:h-14 rounded-xl overflow-hidden bg-secondary flex-shrink-0">
-                <Image
+                <ClothingImage
                   src={item.image}
                   alt={item.name}
                   fill

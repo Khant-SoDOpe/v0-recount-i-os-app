@@ -1,6 +1,6 @@
 "use client"
 
-import Image from "next/image"
+import { ClothingImage } from "@/components/clothing-image"
 import { TrendingUp, Shirt } from "lucide-react"
 import type { ClothingItem } from "@/lib/data"
 
@@ -79,7 +79,7 @@ export function HomeScreen({ items, onItemClick }: HomeScreenProps) {
               className="flex-shrink-0 w-28 lg:w-auto group"
             >
               <div className="relative w-28 h-28 lg:w-full lg:h-40 rounded-2xl overflow-hidden bg-secondary mb-2 shadow-sm">
-                <Image
+                <ClothingImage
                   src={item.image}
                   alt={item.name}
                   fill
@@ -109,7 +109,7 @@ export function HomeScreen({ items, onItemClick }: HomeScreenProps) {
               className="w-full flex items-center gap-3 lg:gap-4 bg-card rounded-2xl p-3 lg:p-4 shadow-sm border border-border active:scale-[0.98] lg:hover:shadow-md transition-all"
             >
               <div className="relative w-14 h-14 lg:w-16 lg:h-16 rounded-xl overflow-hidden bg-secondary flex-shrink-0">
-                <Image
+                <ClothingImage
                   src={item.image}
                   alt={item.name}
                   fill

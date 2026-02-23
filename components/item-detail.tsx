@@ -1,6 +1,6 @@
 "use client"
 
-import Image from "next/image"
+import { ClothingImage } from "@/components/clothing-image"
 import { ChevronLeft, Plus, Minus, Pencil, Trash2, Store, DollarSign, Calendar } from "lucide-react"
 import type { ClothingItem } from "@/lib/data"
 import { CATEGORIES } from "@/lib/data"
@@ -36,7 +36,7 @@ export function ItemDetail({ item, onBack, onWearCountChange, onDelete }: ItemDe
       <div className="lg:flex lg:gap-8 lg:px-10 lg:pb-10">
         {/* Image Section */}
         <div className="relative h-80 lg:h-auto lg:w-[45%] lg:rounded-2xl lg:overflow-hidden lg:sticky lg:top-10 lg:self-start bg-secondary lg:aspect-[3/4] flex-shrink-0">
-          <Image
+          <ClothingImage
             src={item.image}
             alt={item.name}
             fill
