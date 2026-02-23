@@ -16,49 +16,81 @@ export function useClothing() {
   const items = data ?? []
   const isSeeded = items.length > 0
 
-  // Seed the database if it's empty
   async function seed() {
     await fetch("/api/clothing/seed", { method: "POST" })
     await mutate()
   }
 
-  // Add a new clothing item with image upload
+  // Add a new clothing item with image upload (FormData)
   async function addItem(formData: FormData): Promise<ClothingItem> {
     const res = await fetch("/api/clothing", {
       method: "POST",
       body: formData,
     })
     if (!res.ok) {
-      throw new Error("Failed to add item")
+      const err = await res.json().catch(() => ({ error: "Failed to add item" }))
+      throw new Error(err.error || "Failed to add item")
     }
     const newItem: ClothingItem = await res.json()
     await mutate([newItem, ...items], { revalidate: false })
     return newItem
   }
 
-  // Update wear count
-  async function updateWearCount(id: string, wearCount: number) {
-    // Optimistic update
-    const optimistic = items.map((item) =>
-      item.id === id ? { ...item, wearCount } : item
-    )
-    mutate(optimistic, { revalidate: false })
+  // Update an item - supports both JSON patches and FormData (for image re-upload)
+  async function updateItem(
+    id: string,
+    updates: Partial<ClothingItem> | FormData
+  ): Promise<ClothingItem> {
+    const isFormData = updates instanceof FormData
+
+    // Optimistic update for JSON patches
+    if (!isFormData) {
+      const optimistic = items.map((item) =>
+        item.id === id ? { ...item, ...updates } : item
+      )
+      mutate(optimistic, { revalidate: false })
+    }
 
     try {
-      await fetch(`/api/clothing/${id}`, {
+      const res = await fetch(`/api/clothing/${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ wearCount }),
+        ...(isFormData
+          ? { body: updates }
+          : {
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(updates),
+            }),
       })
+      if (!res.ok) {
+        throw new Error("Failed to update item")
+      }
+      const updated: ClothingItem = await res.json()
+
+      // Update local cache with server response
+      mutate(
+        items.map((item) => (item.id === id ? updated : item)),
+        { revalidate: false }
+      )
+
+      return updated
     } catch {
-      // Revert on failure
-      await mutate()
+      await mutate() // Revert on failure
+      throw new Error("Failed to update item")
     }
+  }
+
+  // Convenience: update wear count
+  async function updateWearCount(id: string, wearCount: number) {
+    return updateItem(id, { wearCount })
+  }
+
+  // Convenience: update wash count
+  async function updateWashCount(id: string, washCount: number) {
+    return updateItem(id, { washCount })
   }
 
   // Delete an item
   async function deleteItem(id: string) {
-    // Optimistic update
     const optimistic = items.filter((item) => item.id !== id)
     mutate(optimistic, { revalidate: false })
 
@@ -76,7 +108,9 @@ export function useClothing() {
     error,
     seed,
     addItem,
+    updateItem,
     updateWearCount,
+    updateWashCount,
     deleteItem,
     mutate,
   }

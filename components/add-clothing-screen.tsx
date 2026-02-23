@@ -1,6 +1,13 @@
 "use client"
 
-import { ChevronLeft, Camera, Check, Loader2, X, ImageIcon } from "lucide-react"
+import {
+  ChevronLeft,
+  Camera,
+  Check,
+  Loader2,
+  X,
+  ImageIcon,
+} from "lucide-react"
 import { CATEGORIES, type Category } from "@/lib/data"
 import { useState, useRef } from "react"
 import Image from "next/image"
@@ -16,15 +23,31 @@ export function AddClothingScreen({ onBack, onSave }: AddClothingScreenProps) {
   const [price, setPrice] = useState("")
   const [purchaseDate, setPurchaseDate] = useState("")
   const [category, setCategory] = useState<Category>("top")
+  const [notes, setNotes] = useState("")
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      setError("Please select an image file")
+      return
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      setError("Image must be smaller than 10MB")
+      return
+    }
+
+    setError(null)
     setImageFile(file)
     const reader = new FileReader()
     reader.onloadend = () => {
@@ -36,6 +59,7 @@ export function AddClothingScreen({ onBack, onSave }: AddClothingScreenProps) {
   const clearImage = () => {
     setImageFile(null)
     setImagePreview(null)
+    setError(null)
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
     }
@@ -44,6 +68,7 @@ export function AddClothingScreen({ onBack, onSave }: AddClothingScreenProps) {
   const handleSave = async () => {
     if (!name.trim() || saving) return
     setSaving(true)
+    setError(null)
 
     try {
       const formData = new FormData()
@@ -55,6 +80,7 @@ export function AddClothingScreen({ onBack, onSave }: AddClothingScreenProps) {
         "purchaseDate",
         purchaseDate || new Date().toISOString().split("T")[0]
       )
+      formData.append("notes", notes.trim())
       if (imageFile) {
         formData.append("image", imageFile)
       }
@@ -64,7 +90,10 @@ export function AddClothingScreen({ onBack, onSave }: AddClothingScreenProps) {
       setTimeout(() => {
         onBack()
       }, 800)
-    } catch {
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to save. Please try again."
+      )
       setSaving(false)
     }
   }
@@ -99,6 +128,14 @@ export function AddClothingScreen({ onBack, onSave }: AddClothingScreenProps) {
         </h1>
       </div>
 
+      {/* Error Banner */}
+      {error && (
+        <div className="mb-5 bg-destructive/10 border border-destructive/20 rounded-xl px-4 py-3 flex items-center gap-2">
+          <X className="w-4 h-4 text-destructive flex-shrink-0" />
+          <p className="text-sm text-destructive">{error}</p>
+        </div>
+      )}
+
       {/* Form wrapper */}
       <div className="lg:max-w-2xl lg:flex lg:gap-8">
         {/* Image Picker */}
@@ -106,7 +143,8 @@ export function AddClothingScreen({ onBack, onSave }: AddClothingScreenProps) {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+            capture="environment"
             onChange={handleFileSelect}
             className="hidden"
             id="image-upload"
@@ -118,6 +156,7 @@ export function AddClothingScreen({ onBack, onSave }: AddClothingScreenProps) {
                 alt="Preview"
                 fill
                 className="object-cover"
+                unoptimized
               />
               <button
                 onClick={clearImage}
@@ -140,7 +179,7 @@ export function AddClothingScreen({ onBack, onSave }: AddClothingScreenProps) {
                   Add Photo
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Tap to choose an image
+                  Tap to choose or take a photo
                 </p>
               </div>
             </label>
@@ -154,7 +193,7 @@ export function AddClothingScreen({ onBack, onSave }: AddClothingScreenProps) {
               htmlFor="name"
               className="block text-xs font-semibold text-foreground mb-1.5 uppercase tracking-wider"
             >
-              Item Name
+              Item Name *
             </label>
             <input
               id="name"
@@ -194,6 +233,7 @@ export function AddClothingScreen({ onBack, onSave }: AddClothingScreenProps) {
               <input
                 id="price"
                 type="number"
+                step="0.01"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="0.00"
@@ -237,6 +277,24 @@ export function AddClothingScreen({ onBack, onSave }: AddClothingScreenProps) {
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Notes */}
+          <div>
+            <label
+              htmlFor="notes"
+              className="block text-xs font-semibold text-foreground mb-1.5 uppercase tracking-wider"
+            >
+              Notes
+            </label>
+            <textarea
+              id="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={3}
+              placeholder="Any notes about this item..."
+              className="w-full px-4 py-3 rounded-xl bg-card border border-border text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors resize-none"
+            />
           </div>
 
           {/* Image indicator */}

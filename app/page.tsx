@@ -24,7 +24,9 @@ export default function App() {
     isSeeded,
     seed,
     addItem,
+    updateItem,
     updateWearCount,
+    updateWashCount,
     deleteItem,
   } = useClothing()
 
@@ -52,6 +54,25 @@ export default function App() {
       )
     },
     [updateWearCount]
+  )
+
+  const handleWashCountChange = useCallback(
+    async (id: string, count: number) => {
+      await updateWashCount(id, count)
+      setSelectedItem((prev) =>
+        prev && prev.id === id ? { ...prev, washCount: count } : prev
+      )
+    },
+    [updateWashCount]
+  )
+
+  const handleUpdateItem = useCallback(
+    async (id: string, updates: Partial<ClothingItem> | FormData) => {
+      const updated = await updateItem(id, updates)
+      setSelectedItem(updated)
+      return updated
+    },
+    [updateItem]
   )
 
   const handleDelete = useCallback(
@@ -89,8 +110,16 @@ export default function App() {
   useEffect(() => {
     if (selectedItem) {
       const updated = items.find((i) => i.id === selectedItem.id)
-      if (updated && updated.wearCount !== selectedItem.wearCount) {
-        setSelectedItem(updated)
+      if (updated) {
+        const hasChanges =
+          updated.wearCount !== selectedItem.wearCount ||
+          updated.washCount !== selectedItem.washCount ||
+          updated.name !== selectedItem.name ||
+          updated.image !== selectedItem.image ||
+          updated.price !== selectedItem.price
+        if (hasChanges) {
+          setSelectedItem(updated)
+        }
       }
     }
   }, [items, selectedItem])
@@ -135,6 +164,8 @@ export default function App() {
               item={selectedItem}
               onBack={handleBack}
               onWearCountChange={handleWearCountChange}
+              onWashCountChange={handleWashCountChange}
+              onUpdateItem={handleUpdateItem}
               onDelete={handleDelete}
             />
           )}
@@ -159,6 +190,7 @@ export default function App() {
 
 function ProfileScreen({ items }: { items: ClothingItem[] }) {
   const totalWears = items.reduce((a, b) => a + b.wearCount, 0)
+  const totalWashes = items.reduce((a, b) => a + (b.washCount ?? 0), 0)
   const totalValue = items.reduce((a, b) => a + b.price, 0)
   const avgCostPerWear = totalWears > 0 ? totalValue / totalWears : 0
 
@@ -181,7 +213,7 @@ function ProfileScreen({ items }: { items: ClothingItem[] }) {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-5 lg:mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4 mb-5 lg:mb-8">
         <div className="bg-card rounded-2xl p-4 lg:p-6 shadow-sm border border-border text-center">
           <p className="text-2xl lg:text-3xl font-bold text-primary font-mono">
             {items.length}
@@ -196,6 +228,14 @@ function ProfileScreen({ items }: { items: ClothingItem[] }) {
           </p>
           <p className="text-[10px] lg:text-xs text-muted-foreground font-medium uppercase tracking-wider mt-1">
             Total Wears
+          </p>
+        </div>
+        <div className="bg-card rounded-2xl p-4 lg:p-6 shadow-sm border border-border text-center">
+          <p className="text-2xl lg:text-3xl font-bold text-chart-3 font-mono">
+            {totalWashes}
+          </p>
+          <p className="text-[10px] lg:text-xs text-muted-foreground font-medium uppercase tracking-wider mt-1">
+            Total Washes
           </p>
         </div>
         <div className="bg-card rounded-2xl p-4 lg:p-6 shadow-sm border border-border text-center">

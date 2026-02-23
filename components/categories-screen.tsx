@@ -1,7 +1,7 @@
 "use client"
 
 import { ClothingImage } from "@/components/clothing-image"
-import { ChevronRight, Shirt, Wind, Footprints, Layers } from "lucide-react"
+import { ChevronRight, Shirt, Wind, Footprints, Layers, Droplets } from "lucide-react"
 import type { ClothingItem, Category } from "@/lib/data"
 import { CATEGORIES } from "@/lib/data"
 import { useState } from "react"
@@ -25,7 +25,10 @@ const categoryColors: Record<Category, string> = {
   underwear: "bg-chart-4/20 text-chart-4",
 }
 
-export function CategoriesScreen({ items, onItemClick }: CategoriesScreenProps) {
+export function CategoriesScreen({
+  items,
+  onItemClick,
+}: CategoriesScreenProps) {
   const [openCategory, setOpenCategory] = useState<Category | null>(null)
 
   const getCategoryItems = (category: Category) =>
@@ -48,14 +51,19 @@ export function CategoriesScreen({ items, onItemClick }: CategoriesScreenProps) 
           {catInfo?.label}
         </h1>
         <p className="text-sm text-muted-foreground mb-5 lg:mb-7">
-          {categoryItems.length} {categoryItems.length === 1 ? "item" : "items"}
+          {categoryItems.length}{" "}
+          {categoryItems.length === 1 ? "item" : "items"}
         </p>
         {categoryItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 ${categoryColors[openCategory]}`}>
+            <div
+              className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 ${categoryColors[openCategory]}`}
+            >
               {categoryIcons[openCategory]}
             </div>
-            <p className="text-sm text-muted-foreground">No items yet in this category</p>
+            <p className="text-sm text-muted-foreground">
+              No items yet in this category
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4">
@@ -63,7 +71,7 @@ export function CategoriesScreen({ items, onItemClick }: CategoriesScreenProps) 
               <button
                 key={item.id}
                 onClick={() => onItemClick(item)}
-                className="bg-card rounded-2xl overflow-hidden shadow-sm border border-border active:scale-[0.97] lg:hover:shadow-md transition-all"
+                className="bg-card rounded-2xl overflow-hidden shadow-sm border border-border active:scale-[0.97] lg:hover:shadow-md transition-all text-left"
               >
                 <div className="relative aspect-square">
                   <ClothingImage
@@ -72,15 +80,25 @@ export function CategoriesScreen({ items, onItemClick }: CategoriesScreenProps) 
                     fill
                     className="object-cover"
                   />
-                  <div className="absolute bottom-2 right-2 bg-card/90 backdrop-blur-sm rounded-full px-2 py-0.5">
-                    <span className="text-[10px] font-bold text-foreground">
+                  <div className="absolute bottom-2 right-2 flex gap-1">
+                    <span className="bg-card/90 backdrop-blur-sm rounded-full px-2 py-0.5 text-[10px] font-bold text-foreground">
                       {item.wearCount}x
                     </span>
+                    {(item.washCount ?? 0) > 0 && (
+                      <span className="bg-chart-3/20 backdrop-blur-sm rounded-full px-2 py-0.5 text-[10px] font-bold text-chart-3 flex items-center gap-0.5">
+                        <Droplets className="w-2.5 h-2.5" />
+                        {item.washCount}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="p-3">
-                  <p className="text-sm font-semibold text-foreground truncate">{item.name}</p>
-                  <p className="text-[10px] lg:text-xs text-muted-foreground">{item.boughtFrom}</p>
+                  <p className="text-sm font-semibold text-foreground truncate">
+                    {item.name}
+                  </p>
+                  <p className="text-[10px] lg:text-xs text-muted-foreground">
+                    ${item.price.toFixed(0)} - {item.boughtFrom}
+                  </p>
                 </div>
               </button>
             ))}
@@ -102,6 +120,10 @@ export function CategoriesScreen({ items, onItemClick }: CategoriesScreenProps) 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         {CATEGORIES.map((category) => {
           const count = getCategoryItems(category.id).length
+          const categoryValue = getCategoryItems(category.id).reduce(
+            (a, b) => a + b.price,
+            0
+          )
           const previewItems = getCategoryItems(category.id).slice(0, 2)
 
           return (
@@ -110,15 +132,22 @@ export function CategoriesScreen({ items, onItemClick }: CategoriesScreenProps) 
               onClick={() => setOpenCategory(category.id)}
               className="bg-card rounded-2xl p-4 lg:p-5 shadow-sm border border-border text-left active:scale-[0.97] lg:hover:shadow-md transition-all"
             >
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 ${categoryColors[category.id]}`}>
+              <div
+                className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 ${categoryColors[category.id]}`}
+              >
                 {categoryIcons[category.id]}
               </div>
               <h3 className="text-base lg:text-lg font-semibold text-foreground mb-0.5">
                 {category.label}
               </h3>
-              <p className="text-xs text-muted-foreground mb-3">
+              <p className="text-xs text-muted-foreground mb-1">
                 {count} {count === 1 ? "item" : "items"}
               </p>
+              {count > 0 && (
+                <p className="text-xs font-medium text-primary mb-3">
+                  ${categoryValue.toFixed(0)} total
+                </p>
+              )}
               {previewItems.length > 0 && (
                 <div className="flex -space-x-2">
                   {previewItems.map((item) => (
@@ -150,7 +179,9 @@ export function CategoriesScreen({ items, onItemClick }: CategoriesScreenProps) 
 
       {/* All Items */}
       <div className="mt-7 lg:mt-10">
-        <h2 className="text-base lg:text-lg font-semibold text-foreground mb-3 lg:mb-4">All Items</h2>
+        <h2 className="text-base lg:text-lg font-semibold text-foreground mb-3 lg:mb-4">
+          All Items
+        </h2>
         <div className="space-y-2.5 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0">
           {items.map((item) => (
             <button
@@ -167,14 +198,29 @@ export function CategoriesScreen({ items, onItemClick }: CategoriesScreenProps) 
                 />
               </div>
               <div className="flex-1 text-left min-w-0">
-                <p className="text-sm lg:text-base font-semibold text-foreground truncate">{item.name}</p>
-                <p className="text-[10px] lg:text-xs text-muted-foreground capitalize">
+                <p className="text-sm lg:text-base font-semibold text-foreground truncate">
+                  {item.name}
+                </p>
+                <p className="text-[10px] lg:text-xs text-muted-foreground">
+                  ${item.price.toFixed(0)} -{" "}
                   {CATEGORIES.find((c) => c.id === item.category)?.label}
                 </p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
-                <div className="bg-primary/10 rounded-full px-2.5 py-1">
-                  <span className="text-xs font-bold text-primary">{item.wearCount}x</span>
+                <div className="flex flex-col items-end gap-1">
+                  <div className="bg-primary/10 rounded-full px-2.5 py-1">
+                    <span className="text-xs font-bold text-primary">
+                      {item.wearCount}x
+                    </span>
+                  </div>
+                  {(item.washCount ?? 0) > 0 && (
+                    <div className="flex items-center gap-1 text-chart-3">
+                      <Droplets className="w-3 h-3" />
+                      <span className="text-[10px] font-bold">
+                        {item.washCount}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground" />
               </div>
